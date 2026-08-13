@@ -9,14 +9,22 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Invalid JSON' }, 400);
   }
 
-  if (!payload || typeof payload.name !== 'string' || !payload.name.trim() || !payload.device) {
+  if (
+    !payload ||
+    typeof payload.name !== 'string' || !payload.name.trim() ||
+    typeof payload.email !== 'string' || !payload.email.trim() ||
+    !payload.department ||
+    !payload.device
+  ) {
     return json({ error: 'Missing required fields' }, 400);
   }
 
   const record = {
     timestamp: new Date().toISOString(),
     name: payload.name.trim().slice(0, 200),
-    team: payload.team ?? null,
+    email: payload.email.trim().slice(0, 200),
+    department: payload.department,
+    subDepartment: payload.subDepartment ?? null,
     priorityERP: payload.priorityERP ?? null,
     usbDevices: payload.usbDevices ?? null,
     solidworks: payload.solidworks ?? null,

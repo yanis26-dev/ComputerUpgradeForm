@@ -35,8 +35,8 @@ web UI if you don't want to use git locally yet.
 
 1. **Workers & Pages** → **KV** → **Create namespace** (e.g.
    `cardo_upgrade_responses`).
-2. Go to your Pages project → **Settings** → **Functions** →
-   **KV namespace bindings** → **Add binding**.
+2. Go to your Pages project → **Settings** → **Bindings** → **Add** →
+   **KV namespace**.
    - Variable name: `RESPONSES` (must match exactly — the code reads
      `env.RESPONSES`)
    - KV namespace: the one you just created
@@ -56,12 +56,15 @@ This is the important step — without it, `/admin/` and `/api/admin/*` are
 publicly reachable to anyone with the URL.
 
 1. If you haven't already, add Azure AD / Entra as an identity provider:
-   **Zero Trust dashboard** → **Settings** → **Authentication** →
-   **Login methods** → **Add** → **Azure AD**. You'll register an app in
-   Entra (you already have admin rights there) and paste in the
-   client ID/secret and tenant ID that Cloudflare asks for.
-2. **Zero Trust** → **Access** → **Applications** → **Add an application**
-   → **Self-hosted**.
+   **Zero Trust dashboard** → **Integrations** → **Identity providers** →
+   **Add** → **Azure AD**. You'll register an app in Entra (you already
+   have admin rights there) and paste in the client ID/secret and tenant
+   ID that Cloudflare asks for.
+2. **Zero Trust** → **Access controls** → **Applications** →
+   **Add an application** → **Self-hosted**.
+   (Cloudflare has reshuffled this nav a few times — if "Access controls"
+   doesn't show "Applications," look for an "Access" or "Applications"
+   entry elsewhere in the sidebar; the underlying feature is the same.)
 3. Application domain: `upgrade.cardosystems.com` (or your `*.pages.dev`
    domain), path: `/admin*`.
 4. Add a second application the same way for path `/api/admin*`.
@@ -90,6 +93,52 @@ web UI) and Cloudflare Pages redeploys automatically, usually within
 30–60 seconds. Editing the form's wording or eligibility rules only
 touches `index.html` — you won't need to touch the Functions or KV setup
 again unless you're changing what data gets stored.
+
+### Pushing an update from your computer
+
+If you (or Claude) edited files locally, from inside the project folder:
+
+```bash
+git add .
+git commit -m "describe what changed"
+git push
+```
+
+That's it — no need to repeat any of the GitHub token/login setup from
+the first push, since your credentials are already saved. Cloudflare
+picks up the new commit automatically and redeploys within about a
+minute. You can watch it happen under your Pages project →
+**Deployments**.
+
+If you'd rather skip the terminal, editing files directly on github.com
+(open the file → pencil/edit icon → commit) triggers the same automatic
+redeploy.
+
+### Editing the department/team list
+
+`index.html` has a `DEPARTMENTS` object near the top of the `<script>`
+block:
+
+```js
+const DEPARTMENTS = {
+  'Cardo Ride': [],
+  'Crew': [],
+  'Finance-IT-Legal': ['F&A', 'Finance', 'IT', 'Legal'],
+  ...
+};
+```
+
+- The key is the department name (shown in the first dropdown).
+- The array is that department's teams (shown in a second dropdown that
+  only appears if the array isn't empty). Leave it as `[]` for
+  departments that don't need a second question.
+- To add a team to a department that doesn't have any sub-teams filled
+  in yet (e.g. Crew, HR & Admin, Outdoor, Product Management), just fill
+  in the array — no other code changes needed.
+- The Mac eligibility rules only key off `R&D` → `Software` and `R&D` →
+  `Hardware` specifically (see `updateDeviceEligibility` further down in
+  the same script). Renaming those two team names would require updating
+  that function too — ask Claude if you want that changed.
 
 ## Notes
 

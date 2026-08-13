@@ -77,7 +77,7 @@
     font-size:14.5px;
     margin-bottom:9px;
   }
-  input[type="text"], select{
+  input[type="text"], input[type="email"], select{
     width:100%;
     padding:12px 14px;
     border:1px solid var(--line);
@@ -87,7 +87,7 @@
     color:var(--ink);
     background:var(--surface);
   }
-  input[type="text"]:focus-visible, select:focus-visible{
+  input[type="text"]:focus-visible, input[type="email"]:focus-visible, select:focus-visible{
     outline:2px solid var(--accent);
     outline-offset:1px;
   }
@@ -118,6 +118,22 @@
     border-radius:var(--radius-sm);
     padding:16px;
     margin-top:-4px;
+  }
+  .conditional.nested{
+    position:relative;
+    margin-left:16px;
+    border-color:var(--accent-tint);
+  }
+  .conditional.nested::before{
+    content:'';
+    position:absolute;
+    left:-16px;
+    top:-8px;
+    width:16px;
+    height:24px;
+    border-left:2px solid var(--accent-tint);
+    border-bottom:2px solid var(--accent-tint);
+    border-bottom-left-radius:8px;
   }
 
   .device-grid{
@@ -245,17 +261,33 @@
       </div>
 
       <div class="field-group">
-        <label for="empTeam">Team / Department</label>
-        <select id="empTeam" required>
-          <option value="" disabled selected>Select your team</option>
-          <option>IT</option>
-          <option>R&amp;D - Software</option>
-          <option>R&amp;D - Hardware</option>
+        <label for="empEmail">Email address</label>
+        <input type="email" id="empEmail" autocomplete="email" placeholder="you@cardosystems.com" required />
+      </div>
+
+      <div class="field-group">
+        <label for="empDepartment">Department</label>
+        <select id="empDepartment" required>
+          <option value="" disabled selected>Select your department</option>
+          <option>Cardo Ride</option>
+          <option>Crew</option>
+          <option>Finance-IT-Legal</option>
+          <option>HR &amp; Admin</option>
+          <option>Management</option>
+          <option>Marketing</option>
           <option>Operations</option>
-          <option>Sales &amp; Marketing</option>
-          <option>Finance</option>
-          <option>Support</option>
+          <option>Outdoor</option>
+          <option>Product Management</option>
+          <option>R&amp;D</option>
+          <option>Sales</option>
           <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-group conditional" id="subDepartmentGroup" hidden>
+        <label for="empSubDepartment">Team</label>
+        <select id="empSubDepartment" required>
+          <option value="" disabled selected>Select your team</option>
         </select>
       </div>
 
@@ -267,7 +299,7 @@
         </div>
       </div>
 
-      <div class="field-group conditional" id="usbGroup" hidden>
+      <div class="field-group conditional nested" id="usbGroup" hidden>
         <label>Do you regularly connect USB devices as part of your daily work (e.g. debuggers, dongles, external hardware)?</label>
         <div class="pill-toggle" data-field="usbDevices">
           <button type="button" data-value="yes">Yes</button>
@@ -275,7 +307,7 @@
         </div>
       </div>
 
-      <div class="field-group conditional" id="solidworksGroup" hidden>
+      <div class="field-group conditional nested" id="solidworksGroup" hidden>
         <label>Do you use SolidWorks?</label>
         <div class="pill-toggle" data-field="solidworks">
           <button type="button" data-value="yes">Yes</button>
@@ -340,13 +372,38 @@
 </div>
 
 <script>
+  // ---------------------------------------------------------------------
+  // Department → team map. Edit this to add/rename departments or teams —
+  // nothing else in the code needs to change. An empty array [] means
+  // that department has no second-level "team" question (the form skips
+  // straight to the next field for anyone who picks it).
+  // ---------------------------------------------------------------------
+  const DEPARTMENTS = {
+    'Cardo Ride': [],
+    'Crew': [],
+    'Finance-IT-Legal': ['F&A', 'Finance', 'IT', 'Legal'],
+    'HR & Admin': [],
+    'Management': [],
+    'Marketing': ['Cardo Ride', 'Digital & Social Media', 'Studio'],
+    'Operations': ['ATE', 'China OPS', 'Customer Support', 'EDM', 'NPI', 'Quality', 'Sourcing & Procurement', 'Supply Chain'],
+    'Outdoor': [],
+    'Product Management': [],
+    'R&D': ['Cardo Sound Labs', 'Hardware', 'Mechanical Engineering', 'N-iX', 'QA', 'Software'],
+    'Sales': ['APAC', 'EMEA', 'OPS', 'US'],
+    'Other': []
+  };
+
   const state = {
-    name: '', team: '', priorityERP: null, usbDevices: null,
-    solidworks: null, device: null, macExperience: null, ackWarning: false
+    name: '', email: '', department: '', subDepartment: '',
+    priorityERP: null, usbDevices: null, solidworks: null,
+    device: null, macExperience: null, ackWarning: false
   };
 
   const empName = document.getElementById('empName');
-  const empTeam = document.getElementById('empTeam');
+  const empEmail = document.getElementById('empEmail');
+  const empDepartment = document.getElementById('empDepartment');
+  const subDepartmentGroup = document.getElementById('subDepartmentGroup');
+  const empSubDepartment = document.getElementById('empSubDepartment');
   const usbGroup = document.getElementById('usbGroup');
   const solidworksGroup = document.getElementById('solidworksGroup');
   const deviceCards = Array.from(document.querySelectorAll('.device-card'));
@@ -363,6 +420,16 @@
 
   function isMacDevice(device){
     return device === 'MacBook Pro' || device === 'MacBook Air' || device === 'MacBook Neo';
+  }
+
+  function isValidEmail(email){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str ?? '';
+    return d.innerHTML;
   }
 
   function resetToggle(field){
@@ -390,9 +457,31 @@
   });
 
   empName.addEventListener('input', ()=>{ state.name = empName.value; updateSubmitEnabled(); });
+  empEmail.addEventListener('input', ()=>{ state.email = empEmail.value; updateSubmitEnabled(); });
 
-  empTeam.addEventListener('change', ()=>{
-    state.team = empTeam.value;
+  empDepartment.addEventListener('change', ()=>{
+    state.department = empDepartment.value;
+    state.subDepartment = '';
+    state.usbDevices = null;
+    state.solidworks = null;
+    resetToggle('usbDevices');
+    resetToggle('solidworks');
+
+    const teams = DEPARTMENTS[state.department] || [];
+    if (teams.length > 0){
+      subDepartmentGroup.hidden = false;
+      empSubDepartment.innerHTML =
+        '<option value="" disabled selected>Select your team</option>' +
+        teams.map(t => `<option>${escapeHtml(t)}</option>`).join('');
+    } else {
+      subDepartmentGroup.hidden = true;
+      empSubDepartment.innerHTML = '';
+    }
+    onStateChange();
+  });
+
+  empSubDepartment.addEventListener('change', ()=>{
+    state.subDepartment = empSubDepartment.value;
     state.usbDevices = null;
     state.solidworks = null;
     resetToggle('usbDevices');
@@ -417,8 +506,9 @@
   });
 
   function onStateChange(){
-    usbGroup.hidden = state.team !== 'R&D - Software';
-    solidworksGroup.hidden = state.team !== 'R&D - Hardware';
+    const isRnD = state.department === 'R&D';
+    usbGroup.hidden = !(isRnD && state.subDepartment === 'Software');
+    solidworksGroup.hidden = !(isRnD && state.subDepartment === 'Hardware');
     updateDeviceEligibility();
     updateMacWarnVisibility();
     updateSubmitEnabled();
@@ -426,9 +516,10 @@
 
   function updateDeviceEligibility(){
     const reasons = [];
+    const isRnD = state.department === 'R&D';
     if (state.priorityERP === 'yes') reasons.push('Priority ERP is your main work application.');
-    if (state.team === 'R&D - Software' && state.usbDevices === 'yes') reasons.push('R&D - Software staff who connect USB devices daily are not eligible for Mac.');
-    if (state.team === 'R&D - Hardware' && state.solidworks === 'yes') reasons.push('R&D - Hardware staff who use SolidWorks are not eligible for Mac.');
+    if (isRnD && state.subDepartment === 'Software' && state.usbDevices === 'yes') reasons.push('R&D · Software staff who connect USB devices daily are not eligible for Mac.');
+    if (isRnD && state.subDepartment === 'Hardware' && state.solidworks === 'yes') reasons.push('R&D · Hardware staff who use SolidWorks are not eligible for Mac.');
     const blocked = reasons.length > 0;
 
     deviceCards.filter(c=>c.dataset.platform==='mac').forEach(card=>{
@@ -462,9 +553,19 @@
   }
 
   function updateSubmitEnabled(){
-    let valid = state.name.trim() !== '' && state.team !== '' && state.priorityERP !== null && state.device !== null;
-    if (state.team === 'R&D - Software') valid = valid && state.usbDevices !== null;
-    if (state.team === 'R&D - Hardware') valid = valid && state.solidworks !== null;
+    let valid = state.name.trim() !== ''
+      && isValidEmail(state.email)
+      && state.department !== ''
+      && state.priorityERP !== null
+      && state.device !== null;
+
+    const teams = DEPARTMENTS[state.department] || [];
+    if (teams.length > 0) valid = valid && !!state.subDepartment;
+
+    const isRnD = state.department === 'R&D';
+    if (isRnD && state.subDepartment === 'Software') valid = valid && state.usbDevices !== null;
+    if (isRnD && state.subDepartment === 'Hardware') valid = valid && state.solidworks !== null;
+
     if (isMacDevice(state.device)){
       valid = valid && state.macExperience !== null;
       if (state.macExperience === 'no') valid = valid && state.ackWarning === true;
@@ -478,12 +579,16 @@
     submitBtn.textContent = 'Submitting…';
     formError.hidden = true;
 
+    const isRnD = state.department === 'R&D';
+
     const payload = {
       name: state.name.trim(),
-      team: state.team,
+      email: state.email.trim(),
+      department: state.department,
+      subDepartment: state.subDepartment || null,
       priorityERP: state.priorityERP,
-      usbDevices: state.team === 'R&D - Software' ? state.usbDevices : null,
-      solidworks: state.team === 'R&D - Hardware' ? state.solidworks : null,
+      usbDevices: (isRnD && state.subDepartment === 'Software') ? state.usbDevices : null,
+      solidworks: (isRnD && state.subDepartment === 'Hardware') ? state.solidworks : null,
       device: state.device,
       macExperience: isMacDevice(state.device) ? state.macExperience : null,
       ackWarning: state.ackWarning

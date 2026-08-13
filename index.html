@@ -6,26 +6,31 @@
 <title>Computer Upgrade Request · Cardo Systems</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5F6F8;
+    --bg:#F1F3F5;
     --surface:#FFFFFF;
-    --ink:#14171F;
-    --muted:#5B6270;
-    --line:#E4E7EC;
-    --accent:#3452FF;
-    --accent-tint:#EEF0FF;
-    --warn:#8A4B0A;
-    --warn-bg:#FDF3E7;
-    --warn-line:#F0CE9E;
-    --danger:#B3261E;
-    --danger-bg:#FBEAE9;
-    --success:#166A43;
-    --radius:14px;
-    --radius-sm:9px;
-    --font-display:'Space Grotesk',sans-serif;
-    --font-body:'Inter',sans-serif;
+    --ink:#161A22;
+    --muted:#667085;
+    --line:#E1E4E9;
+    --accent:#0E7C8C;
+    --accent-tint:#E7F3F4;
+    --accent-strong:#0B6570;
+    --warn:#8A5A0A;
+    --warn-bg:#FBF1E3;
+    --warn-line:#EFD6A8;
+    --danger:#A23B33;
+    --danger-bg:#FBEDEB;
+    --danger-line:#EFC7C1;
+    --success:#1F7A52;
+    --success-bg:#EAF6EF;
+    --win-ink:#3A4150;
+    --win-tint:#F0F1F3;
+    --radius:10px;
+    --radius-sm:6px;
+    --font-display:'IBM Plex Sans',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
     --font-mono:'IBM Plex Mono',monospace;
   }
   *{box-sizing:border-box;}
@@ -37,53 +42,71 @@
     -webkit-font-smoothing:antialiased;
   }
   .app{
-    max-width:640px;
+    max-width:660px;
     margin:0 auto;
-    padding:32px 20px 56px;
+    padding:40px 20px 64px;
   }
+
   .masthead{margin-bottom:28px;}
-  .eyebrow{
-    display:inline-block;
-    font-family:var(--font-mono);
-    font-size:11px;
-    letter-spacing:.06em;
-    color:var(--accent);
-    background:var(--accent-tint);
-    padding:4px 8px;
-    border-radius:6px;
-    margin-bottom:12px;
-  }
+  .logo{height:60px;width:auto;display:block;margin-bottom:22px;}
   h1{
     font-family:var(--font-display);
-    font-size:28px;
+    font-size:24px;
     font-weight:700;
     margin:0 0 8px;
     letter-spacing:-0.01em;
   }
-  .sub{color:var(--muted);font-size:14.5px;margin:0;line-height:1.5;}
+  .sub{color:var(--muted);font-size:14px;margin:0;line-height:1.55;}
 
   .card{
     background:var(--surface);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:24px;
+    padding:28px;
   }
 
-  .field-group{margin-bottom:24px;}
+  /* ---- sections ---- */
+  .form-section{margin-bottom:30px;}
+  .form-section:last-of-type{margin-bottom:0;}
+  .section-header{
+    display:flex;
+    align-items:baseline;
+    gap:9px;
+    margin-bottom:18px;
+    padding-bottom:11px;
+    border-bottom:1px solid var(--line);
+  }
+  .section-index{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:600;
+    color:var(--accent);
+    letter-spacing:.03em;
+  }
+  .section-title{
+    font-family:var(--font-mono);
+    font-weight:500;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+  }
+
+  .field-group{margin-bottom:20px;}
   .field-group:last-child{margin-bottom:0;}
   .field-group > label{
     display:block;
     font-weight:600;
-    font-size:14.5px;
-    margin-bottom:9px;
+    font-size:13.5px;
+    margin-bottom:8px;
   }
   input[type="text"], input[type="email"], select{
     width:100%;
-    padding:12px 14px;
+    padding:11px 13px;
     border:1px solid var(--line);
     border-radius:var(--radius-sm);
     font-family:var(--font-body);
-    font-size:15px;
+    font-size:14.5px;
     color:var(--ink);
     background:var(--surface);
   }
@@ -95,13 +118,13 @@
   .pill-toggle{display:flex;gap:8px;}
   .pill-toggle button{
     flex:1;
-    padding:11px;
+    padding:10px;
     border:1px solid var(--line);
     background:var(--surface);
     border-radius:var(--radius-sm);
     cursor:pointer;
     font-weight:600;
-    font-size:14px;
+    font-size:13.5px;
     color:var(--muted);
     font-family:var(--font-body);
   }
@@ -116,39 +139,39 @@
     background:#FAFBFC;
     border:1px solid var(--line);
     border-radius:var(--radius-sm);
-    padding:16px;
-    margin-top:-4px;
+    padding:15px;
+    margin-top:-2px;
   }
   .conditional.nested{
     position:relative;
-    margin-left:16px;
+    margin-left:15px;
     border-color:var(--accent-tint);
   }
   .conditional.nested::before{
     content:'';
     position:absolute;
-    left:-16px;
-    top:-8px;
-    width:16px;
-    height:24px;
+    left:-15px;
+    top:-7px;
+    width:15px;
+    height:22px;
     border-left:2px solid var(--accent-tint);
     border-bottom:2px solid var(--accent-tint);
-    border-bottom-left-radius:8px;
+    border-bottom-left-radius:7px;
   }
 
   .device-grid{
     display:grid;
     grid-template-columns:1fr;
-    gap:10px;
+    gap:9px;
   }
   @media (min-width:560px){
     .device-grid{grid-template-columns:1fr 1fr;}
   }
   .device-card{
     text-align:left;
-    padding:16px;
-    border:1.5px solid var(--line);
-    border-radius:var(--radius);
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
     background:var(--surface);
     cursor:pointer;
     display:flex;
@@ -166,28 +189,32 @@
     opacity:.5;
     cursor:not-allowed;
   }
-  .device-name{font-family:var(--font-display);font-weight:600;font-size:15.5px;}
-  .device-desc{color:var(--muted);font-size:12.5px;}
+  .device-icon-row{display:flex;align-items:center;gap:8px;}
+  .device-icon{flex-shrink:0;color:var(--accent);}
+  .device-card[data-platform="win"] .device-icon{color:var(--win-ink);}
+  .device-name{font-family:var(--font-display);font-weight:600;font-size:14.5px;}
+  .device-desc{color:var(--muted);font-size:12px;}
   .device-status{
     position:absolute;
-    top:10px;
-    right:10px;
-    font-size:10.5px;
+    top:9px;
+    right:9px;
+    font-size:10px;
     font-family:var(--font-mono);
     letter-spacing:.03em;
+    text-transform:uppercase;
     color:var(--danger);
     background:var(--danger-bg);
     padding:2px 6px;
-    border-radius:5px;
+    border-radius:4px;
   }
 
   .ineligible-note{
     background:var(--danger-bg);
     color:var(--danger);
-    border:1px solid #F1C6C3;
-    padding:12px 14px;
+    border:1px solid var(--danger-line);
+    padding:12px 13px;
     border-radius:var(--radius-sm);
-    font-size:13px;
+    font-size:12.5px;
     line-height:1.6;
     margin-top:12px;
   }
@@ -196,17 +223,20 @@
     background:var(--warn-bg);
     border:1px solid var(--warn-line);
     color:var(--warn);
-    padding:16px;
-    border-radius:var(--radius);
-    margin-top:14px;
+    padding:15px;
+    border-radius:var(--radius-sm);
+    margin-top:13px;
   }
-  .warning-box strong{display:block;font-size:14px;margin-bottom:6px;}
-  .warning-box p{font-size:13.5px;line-height:1.55;margin:0 0 12px;}
+  .warning-box strong{
+    display:block;font-size:13px;margin-bottom:6px;
+    font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em;
+  }
+  .warning-box p{font-size:13px;line-height:1.55;margin:0 0 12px;}
   .ack-check{
     display:flex;
     gap:9px;
     align-items:flex-start;
-    font-size:13.5px;
+    font-size:13px;
     font-weight:600;
     cursor:pointer;
   }
@@ -214,32 +244,37 @@
 
   .submit-btn{
     width:100%;
-    padding:14px;
+    padding:13px;
     background:var(--accent);
     color:#fff;
     border:none;
     border-radius:var(--radius-sm);
-    font-weight:700;
-    font-size:15px;
+    font-weight:600;
+    font-size:14.5px;
     cursor:pointer;
-    margin-top:6px;
+    margin-top:4px;
     font-family:var(--font-body);
   }
+  .submit-btn:hover:not(:disabled){background:var(--accent-strong);}
   .submit-btn:disabled{opacity:.35;cursor:not-allowed;}
   .submit-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-  .form-error{color:var(--danger);font-size:13px;margin-top:12px;}
+  .form-error{color:var(--danger);font-size:12.5px;margin-top:12px;}
 
-  .success-screen{
-    text-align:center;
-    padding:44px 20px;
+  .success-screen{padding:8px 4px 4px;}
+  .success-status{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--success);background:var(--success-bg);
+    padding:4px 9px;border-radius:5px;margin-bottom:14px;
   }
-  .success-screen h2{font-family:var(--font-display);font-size:22px;margin:0 0 8px;color:var(--success);}
-  .success-screen p{color:var(--muted);font-size:14.5px;margin:0;}
+  .success-screen h2{font-family:var(--font-display);font-size:19px;margin:0 0 8px;}
+  .success-screen p{color:var(--muted);font-size:13.5px;margin:0 0 4px;line-height:1.55;}
+  .success-ref{font-family:var(--font-mono);color:var(--ink);font-weight:600;}
   .link-btn{
     background:none;border:none;color:var(--accent);
     font-weight:600;cursor:pointer;text-decoration:underline;
-    margin-top:18px;font-size:14px;font-family:var(--font-body);
+    margin-top:16px;font-size:13.5px;font-family:var(--font-body);padding:0;
   }
 </style>
 </head>
@@ -247,7 +282,7 @@
 <div class="app">
 
   <div class="masthead">
-    <span class="eyebrow">IT HARDWARE REQUEST · CARDO SYSTEMS</span>
+    <img class="logo" src="data:image/png;base64,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" alt="Cardo Systems" />
     <h1>Computer Upgrade Request</h1>
     <p class="sub">Tell us about your role and daily tools. Based on your answers, we'll show you which laptops you're eligible to request.</p>
   </div>
@@ -255,106 +290,147 @@
   <div class="card">
     <form id="upgradeForm" novalidate>
 
-      <div class="field-group">
-        <label for="empName">Full name</label>
-        <input type="text" id="empName" autocomplete="name" placeholder="Your full name" required />
-      </div>
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-index">01</span>
+          <span class="section-title">Your details</span>
+        </div>
 
-      <div class="field-group">
-        <label for="empEmail">Email address</label>
-        <input type="email" id="empEmail" autocomplete="email" placeholder="you@cardosystems.com" required />
-      </div>
+        <div class="field-group">
+          <label for="empName">Full name</label>
+          <input type="text" id="empName" autocomplete="name" placeholder="Your full name" required />
+        </div>
 
-      <div class="field-group">
-        <label for="empDepartment">Department</label>
-        <select id="empDepartment" required>
-          <option value="" disabled selected>Select your department</option>
-          <option>Cardo Ride</option>
-          <option>Crew</option>
-          <option>Finance-IT-Legal</option>
-          <option>HR &amp; Admin</option>
-          <option>Management</option>
-          <option>Marketing</option>
-          <option>Operations</option>
-          <option>Outdoor</option>
-          <option>Product Management</option>
-          <option>R&amp;D</option>
-          <option>Sales</option>
-          <option>Other</option>
-        </select>
-      </div>
+        <div class="field-group">
+          <label for="empEmail">Email address</label>
+          <input type="email" id="empEmail" autocomplete="email" placeholder="you@cardosystems.com" required />
+        </div>
 
-      <div class="field-group conditional" id="subDepartmentGroup" hidden>
-        <label for="empSubDepartment">Team</label>
-        <select id="empSubDepartment" required>
-          <option value="" disabled selected>Select your team</option>
-        </select>
-      </div>
+        <div class="field-group">
+          <label for="empDepartment">Department</label>
+          <select id="empDepartment" required>
+            <option value="" disabled selected>Select your department</option>
+            <option>Cardo Ride</option>
+            <option>Crew</option>
+            <option>Finance-IT-Legal</option>
+            <option>HR &amp; Admin</option>
+            <option>Management</option>
+            <option>Marketing</option>
+            <option>Operations</option>
+            <option>Outdoor</option>
+            <option>Product Management</option>
+            <option>R&amp;D</option>
+            <option>Sales</option>
+            <option>Other</option>
+          </select>
+        </div>
 
-      <div class="field-group">
-        <label>Is Priority ERP your main, daily work application?</label>
-        <div class="pill-toggle" data-field="priorityERP">
-          <button type="button" data-value="yes">Yes</button>
-          <button type="button" data-value="no">No</button>
+        <div class="field-group conditional" id="subDepartmentGroup" hidden>
+          <label for="empSubDepartment">Team</label>
+          <select id="empSubDepartment" required>
+            <option value="" disabled selected>Select your team</option>
+          </select>
         </div>
       </div>
 
-      <div class="field-group conditional nested" id="usbGroup" hidden>
-        <label>Do you regularly connect USB devices as part of your daily work (e.g. debuggers, dongles, external hardware)?</label>
-        <div class="pill-toggle" data-field="usbDevices">
-          <button type="button" data-value="yes">Yes</button>
-          <button type="button" data-value="no">No</button>
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-index">02</span>
+          <span class="section-title">Daily tools</span>
+        </div>
+
+        <div class="field-group">
+          <label>Is Priority ERP your main, daily work application?</label>
+          <div class="pill-toggle" data-field="priorityERP">
+            <button type="button" data-value="yes">Yes</button>
+            <button type="button" data-value="no">No</button>
+          </div>
+        </div>
+
+        <div class="field-group conditional nested" id="usbGroup" hidden>
+          <label>Do you regularly connect USB devices as part of your daily work (e.g. debuggers, dongles, external hardware)?</label>
+          <div class="pill-toggle" data-field="usbDevices">
+            <button type="button" data-value="yes">Yes</button>
+            <button type="button" data-value="no">No</button>
+          </div>
+        </div>
+
+        <div class="field-group conditional nested" id="solidworksGroup" hidden>
+          <label>Do you use SolidWorks?</label>
+          <div class="pill-toggle" data-field="solidworks">
+            <button type="button" data-value="yes">Yes</button>
+            <button type="button" data-value="no">No</button>
+          </div>
         </div>
       </div>
 
-      <div class="field-group conditional nested" id="solidworksGroup" hidden>
-        <label>Do you use SolidWorks?</label>
-        <div class="pill-toggle" data-field="solidworks">
-          <button type="button" data-value="yes">Yes</button>
-          <button type="button" data-value="no">No</button>
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-index">03</span>
+          <span class="section-title">Device selection</span>
         </div>
-      </div>
 
-      <div class="field-group">
-        <label>Which device would you like?</label>
-        <div class="device-grid" id="deviceGrid">
-          <button type="button" class="device-card" data-device="MacBook Pro" data-platform="mac" aria-pressed="false">
-            <span class="device-name">MacBook Pro</span>
-            <span class="device-desc">macOS · heavy creative / dev workloads</span>
-            <span class="device-status"></span>
-          </button>
-          <button type="button" class="device-card" data-device="MacBook Air" data-platform="mac" aria-pressed="false">
-            <span class="device-name">MacBook Air</span>
-            <span class="device-desc">macOS · lightweight, everyday use</span>
-            <span class="device-status"></span>
-          </button>
-          <button type="button" class="device-card" data-device="MacBook Neo" data-platform="mac" aria-pressed="false">
-            <span class="device-name">MacBook Neo</span>
-            <span class="device-desc">macOS · standard everyday laptop</span>
-            <span class="device-status"></span>
-          </button>
-          <button type="button" class="device-card" data-device="Lenovo ThinkPad T14" data-platform="win" aria-pressed="false">
-            <span class="device-name">Lenovo ThinkPad T14</span>
-            <span class="device-desc">Windows · durable business laptop</span>
-            <span class="device-status"></span>
-          </button>
+        <div class="field-group">
+          <label>Which device would you like?</label>
+          <div class="device-grid" id="deviceGrid">
+            <button type="button" class="device-card" data-device="MacBook Neo" data-platform="mac" aria-pressed="false">
+              <div class="device-icon-row">
+                <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
+                <span class="device-name">MacBook Neo</span>
+              </div>
+              <span class="device-desc">macOS · standard everyday laptop</span>
+              <span class="device-status"></span>
+            </button>
+            <button type="button" class="device-card" data-device="MacBook Air" data-platform="mac" aria-pressed="false">
+              <div class="device-icon-row">
+                <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
+                <span class="device-name">MacBook Air</span>
+              </div>
+              <span class="device-desc">macOS · lightweight, everyday use</span>
+              <span class="device-status"></span>
+            </button>
+            <button type="button" class="device-card" data-device="MacBook Pro" data-platform="mac" aria-pressed="false">
+              <div class="device-icon-row">
+                <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
+                <span class="device-name">MacBook Pro</span>
+              </div>
+              <span class="device-desc">macOS · heavy creative / dev workloads</span>
+              <span class="device-status"></span>
+            </button>
+            <button type="button" class="device-card" data-device="Lenovo ThinkPad T14" data-platform="win" aria-pressed="false">
+              <div class="device-icon-row">
+                <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
+                <span class="device-name">Lenovo ThinkPad T14</span>
+              </div>
+              <span class="device-desc">Windows · durable business laptop</span>
+              <span class="device-status"></span>
+            </button>
+            <button type="button" class="device-card" data-device="Lenovo ThinkPad P16" data-platform="win" aria-pressed="false">
+              <div class="device-icon-row">
+                <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
+                <span class="device-name">Lenovo ThinkPad P16</span>
+              </div>
+              <span class="device-desc">Windows · CAD-ready mobile workstation</span>
+              <span class="device-status"></span>
+            </button>
+          </div>
+          <p class="ineligible-note" id="ineligibleNote" hidden></p>
         </div>
-        <p class="ineligible-note" id="ineligibleNote" hidden></p>
-      </div>
 
-      <div class="field-group conditional" id="macWarnGroup" hidden>
-        <label>Have you used an iPhone, iPad, or Mac before?</label>
-        <div class="pill-toggle" data-field="macExperience">
-          <button type="button" data-value="yes">Yes</button>
-          <button type="button" data-value="no">No, never</button>
-        </div>
-        <div class="warning-box" id="macWarningBox" hidden>
-          <strong>⚠ Before you continue</strong>
-          <p>If you've never used iOS or macOS, switching to a Mac isn't a simple transition — the file system, shortcuts, and everyday workflows are different from Windows, and it takes real time to adjust. We'd recommend a Windows laptop unless you're prepared for that learning curve.</p>
-          <label class="ack-check">
-            <input type="checkbox" id="ackWarningCheck" />
-            I understand this, and I'd still like to request a Mac.
-          </label>
+        <div class="field-group conditional" id="macWarnGroup" hidden>
+          <label>Have you used an iPhone, iPad, or Mac before?</label>
+          <div class="pill-toggle" data-field="macExperience">
+            <button type="button" data-value="yes">Yes</button>
+            <button type="button" data-value="no">No, never</button>
+          </div>
+          <div class="warning-box" id="macWarningBox" hidden>
+            <strong>Before you continue</strong>
+            <p>If you've never used iOS or macOS, switching to a Mac isn't a simple transition — the file system, shortcuts, and everyday workflows are different from Windows, and it takes real time to adjust. We'd recommend a Windows laptop unless you're prepared for that learning curve.</p>
+            <label class="ack-check">
+              <input type="checkbox" id="ackWarningCheck" />
+              I understand this, and I'd still like to request a Mac.
+            </label>
+          </div>
         </div>
       </div>
 
@@ -363,8 +439,9 @@
     </form>
 
     <div class="success-screen" id="successScreen" hidden>
-      <h2>Request received</h2>
-      <p>Thanks, <span id="successName"></span> — your device request has been logged with IT.</p>
+      <span class="success-status">Request logged</span>
+      <h2>Thanks, <span id="successName"></span></h2>
+      <p>Your device request <span class="success-ref" id="successRef"></span> has been logged with IT.</p>
       <button type="button" id="newRequestBtn" class="link-btn">Submit another response</button>
     </div>
   </div>
@@ -372,12 +449,6 @@
 </div>
 
 <script>
-  // ---------------------------------------------------------------------
-  // Department → team map. Edit this to add/rename departments or teams —
-  // nothing else in the code needs to change. An empty array [] means
-  // that department has no second-level "team" question (the form skips
-  // straight to the next field for anyone who picks it).
-  // ---------------------------------------------------------------------
   const DEPARTMENTS = {
     'Cardo Ride': [],
     'Crew': [],
@@ -392,6 +463,16 @@
     'Sales': ['APAC', 'EMEA', 'OPS', 'US'],
     'Other': []
   };
+
+  function generateTicketId(){
+    const now = new Date();
+    const y = String(now.getFullYear()).slice(2);
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+    return `IT-CU-${y}${m}${d}-${rand}`;
+  }
+  const ticketId = generateTicketId();
 
   const state = {
     name: '', email: '', department: '', subDepartment: '',
@@ -416,22 +497,20 @@
   const formError = document.getElementById('formError');
   const successScreen = document.getElementById('successScreen');
   const successName = document.getElementById('successName');
+  const successRef = document.getElementById('successRef');
   const newRequestBtn = document.getElementById('newRequestBtn');
 
   function isMacDevice(device){
     return device === 'MacBook Pro' || device === 'MacBook Air' || device === 'MacBook Neo';
   }
-
   function isValidEmail(email){
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
-
   function escapeHtml(str){
     const d = document.createElement('div');
     d.textContent = str ?? '';
     return d.innerHTML;
   }
-
   function resetToggle(field){
     document.querySelector(`.pill-toggle[data-field="${field}"]`)
       ?.querySelectorAll('button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
@@ -445,7 +524,6 @@
         btn.classList.add('active');
         btn.setAttribute('aria-pressed','true');
         state[field] = btn.dataset.value;
-
         if (field === 'macExperience'){
           const isNo = btn.dataset.value === 'no';
           macWarningBox.hidden = !isNo;
@@ -466,7 +544,6 @@
     state.solidworks = null;
     resetToggle('usbDevices');
     resetToggle('solidworks');
-
     const teams = DEPARTMENTS[state.department] || [];
     if (teams.length > 0){
       subDepartmentGroup.hidden = false;
@@ -515,8 +592,32 @@
   }
 
   function updateDeviceEligibility(){
-    const reasons = [];
     const isRnD = state.department === 'R&D';
+    const isMechEng = isRnD && state.subDepartment === 'Mechanical Engineering';
+
+    deviceCards.forEach(card=>{
+      card.classList.remove('disabled');
+      card.querySelector('.device-status').textContent = '';
+    });
+
+    if (isMechEng){
+      deviceCards.forEach(card=>{
+        if (card.dataset.device !== 'Lenovo ThinkPad P16'){
+          card.classList.add('disabled');
+          card.querySelector('.device-status').textContent = 'Not eligible';
+          if (state.device === card.dataset.device){
+            state.device = null;
+            card.classList.remove('selected');
+            card.setAttribute('aria-pressed','false');
+          }
+        }
+      });
+      ineligibleNote.hidden = false;
+      ineligibleNote.innerHTML = '<strong>Device limited for your team:</strong><br>• Mechanical Engineering roles are provisioned with the Lenovo ThinkPad P16 (CAD-ready workstation) instead of other devices.';
+      return;
+    }
+
+    const reasons = [];
     if (state.priorityERP === 'yes') reasons.push('Priority ERP is your main work application.');
     if (isRnD && state.subDepartment === 'Software' && state.usbDevices === 'yes') reasons.push('R&D · Software staff who connect USB devices daily are not eligible for Mac.');
     if (isRnD && state.subDepartment === 'Hardware' && state.solidworks === 'yes') reasons.push('R&D · Hardware staff who use SolidWorks are not eligible for Mac.');
@@ -558,14 +659,11 @@
       && state.department !== ''
       && state.priorityERP !== null
       && state.device !== null;
-
     const teams = DEPARTMENTS[state.department] || [];
     if (teams.length > 0) valid = valid && !!state.subDepartment;
-
     const isRnD = state.department === 'R&D';
     if (isRnD && state.subDepartment === 'Software') valid = valid && state.usbDevices !== null;
     if (isRnD && state.subDepartment === 'Hardware') valid = valid && state.solidworks !== null;
-
     if (isMacDevice(state.device)){
       valid = valid && state.macExperience !== null;
       if (state.macExperience === 'no') valid = valid && state.ackWarning === true;
@@ -578,10 +676,10 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting…';
     formError.hidden = true;
-
     const isRnD = state.department === 'R&D';
 
     const payload = {
+      requestId: ticketId,
       name: state.name.trim(),
       email: state.email.trim(),
       department: state.department,
@@ -602,6 +700,7 @@
       });
       if (!res.ok) throw new Error('bad-status');
       successName.textContent = payload.name;
+      successRef.textContent = ticketId;
       form.hidden = true;
       successScreen.hidden = false;
     } catch (err){

@@ -6,36 +6,56 @@
 <title>Admin · Computer Upgrade Requests</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5F6F8; --surface:#FFFFFF; --ink:#14171F; --muted:#5B6270; --line:#E4E7EC;
-    --accent:#3452FF; --danger:#B3261E;
-    --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+    --bg:#F1F3F5;
+    --surface:#FFFFFF;
+    --ink:#161A22;
+    --muted:#667085;
+    --line:#E1E4E9;
+    --accent:#0E7C8C;
+    --accent-strong:#0B6570;
+    --danger:#A23B33;
+    --font-display:'IBM Plex Sans',sans-serif;
+    --font-body:'IBM Plex Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+    --radius:10px;
+    --radius-sm:6px;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
-  .app{max-width:900px;margin:0 auto;padding:32px 20px 56px;}
-  h1{font-family:var(--font-display);font-size:22px;margin:0 0 4px;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+  .app{max-width:960px;margin:0 auto;padding:36px 20px 56px;}
+  .eyebrow{
+    display:inline-block;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
+    color:var(--accent);margin-bottom:8px;
+  }
+  h1{font-family:var(--font-display);font-size:22px;font-weight:700;margin:0 0 4px;}
   .sub{color:var(--muted);font-size:13px;margin:0 0 24px;}
   .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
   .toolbar div{display:flex;gap:8px;}
   button{
     padding:9px 14px;border:1px solid var(--line);background:var(--surface);
-    border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);
+    border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);
   }
   button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;overflow-x:auto;}
+  button.primary:hover{background:var(--accent-strong);}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
-  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;}
-  th{font-family:var(--font-mono);text-transform:uppercase;font-size:10.5px;color:var(--muted);letter-spacing:.03em;}
+  th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;}
+  th{
+    font-family:var(--font-mono);text-transform:uppercase;font-size:10.5px;
+    color:var(--muted);letter-spacing:.04em;
+  }
+  td.ref{font-family:var(--font-mono);font-size:11.5px;}
   .del-btn{border-color:var(--danger);color:var(--danger);padding:4px 8px;font-size:11px;}
 </style>
 </head>
 <body>
 <div class="app">
+  <span class="eyebrow">IT HARDWARE REQUEST · ADMIN</span>
   <h1>Computer upgrade requests</h1>
-  <p class="sub">Internal view — access should be restricted at the edge via Cloudflare Access (see README).</p>
+  <p class="sub">Internal view — access is restricted at the edge via Cloudflare Access.</p>
   <div class="toolbar">
     <div>Responses: <strong id="responseCount">0</strong></div>
     <div>
@@ -47,12 +67,12 @@
     <table>
       <thead>
         <tr>
-          <th>Date</th><th>Name</th><th>Email</th><th>Department</th><th>Team</th>
+          <th>Request ID</th><th>Date</th><th>Name</th><th>Email</th><th>Department</th><th>Team</th>
           <th>Priority ERP</th><th>USB devices</th><th>SolidWorks</th><th>Device</th>
           <th>Mac experience</th><th>Ack. warning</th><th></th>
         </tr>
       </thead>
-      <tbody id="responseTbody"><tr><td colspan="12">Loading…</td></tr></tbody>
+      <tbody id="responseTbody"><tr><td colspan="13">Loading…</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -68,7 +88,7 @@
   }
 
   async function loadResponses(){
-    responseTbody.innerHTML = '<tr><td colspan="12">Loading…</td></tr>';
+    responseTbody.innerHTML = '<tr><td colspan="13">Loading…</td></tr>';
     try {
       const res = await fetch('/api/admin/responses');
       if (!res.ok) throw new Error('bad-status');
@@ -77,12 +97,13 @@
       responseCount.textContent = items.length;
       responseTbody.innerHTML = '';
       if (items.length === 0){
-        responseTbody.innerHTML = '<tr><td colspan="12">No responses yet.</td></tr>';
+        responseTbody.innerHTML = '<tr><td colspan="13">No responses yet.</td></tr>';
         return;
       }
       items.forEach(({key, data}) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+          <td class="ref">${escapeHtml(data.requestId) || '-'}</td>
           <td>${new Date(data.timestamp).toLocaleString()}</td>
           <td>${escapeHtml(data.name)}</td>
           <td>${escapeHtml(data.email)}</td>
@@ -112,14 +133,15 @@
         });
       });
     } catch (err) {
-      responseTbody.innerHTML = '<tr><td colspan="12">Failed to load responses.</td></tr>';
+      responseTbody.innerHTML = '<tr><td colspan="13">Failed to load responses.</td></tr>';
     }
   }
 
   function exportCSV(){
     if (!cachedResponses.length){ alert('No responses to export.'); return; }
-    const headers = ['Date','Name','Email','Department','Team','Priority ERP','USB devices','SolidWorks','Device','Mac experience','Acknowledged warning'];
+    const headers = ['Request ID','Date','Name','Email','Department','Team','Priority ERP','USB devices','SolidWorks','Device','Mac experience','Acknowledged warning'];
     const rows = cachedResponses.map(({data}) => [
+      data.requestId ?? '',
       new Date(data.timestamp).toLocaleString(),
       data.name, data.email, data.department, data.subDepartment ?? '',
       data.priorityERP ?? '', data.usbDevices ?? '',

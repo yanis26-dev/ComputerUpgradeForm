@@ -21,6 +21,7 @@ export async function onRequestPost({ request, env }) {
 
   const record = {
     timestamp: new Date().toISOString(),
+    requestId: typeof payload.requestId === 'string' ? payload.requestId : null,
     name: payload.name.trim().slice(0, 200),
     email: payload.email.trim().slice(0, 200),
     department: payload.department,

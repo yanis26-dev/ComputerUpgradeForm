@@ -86,6 +86,21 @@ publicly reachable to anyone with the URL.
    applications are per-domain, so you'd need one for `*.pages.dev` and
    one for your custom domain if you use both.
 
+## Eligibility rules
+
+These live in `updateDeviceEligibility()` in `index.html` — not in the
+`DEPARTMENTS` object — so renaming any of the teams named below needs an
+edit there too, not just in `DEPARTMENTS`.
+
+1. **Priority ERP as main tool** → not eligible for any MacBook (Pro,
+   Air, or Neo).
+2. **R&D → Software** + connects USB devices daily → not eligible for
+   any MacBook.
+3. **R&D → Hardware** + uses SolidWorks → not eligible for any MacBook.
+4. **R&D → Mechanical Engineering** → restricted to the Lenovo ThinkPad
+   P16 only, regardless of any other answer. This one is exclusive
+   (every other device is disabled) rather than just blocking Mac.
+
 ## Editing later
 
 Edit any file in the repo (locally + `git push`, or directly in GitHub's

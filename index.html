@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Computer Upgrade Request · Cardo Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F6F8;
+    --surface:#FFFFFF;
+    --ink:#14171F;
+    --muted:#5B6270;
+    --line:#E4E7EC;
+    --accent:#3452FF;
+    --accent-tint:#EEF0FF;
+    --warn:#8A4B0A;
+    --warn-bg:#FDF3E7;
+    --warn-line:#F0CE9E;
+    --danger:#B3261E;
+    --danger-bg:#FBEAE9;
+    --success:#166A43;
+    --radius:14px;
+    --radius-sm:9px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    padding:32px 20px 56px;
+  }
+  .masthead{margin-bottom:28px;}
+  .eyebrow{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.06em;
+    color:var(--accent);
+    background:var(--accent-tint);
+    padding:4px 8px;
+    border-radius:6px;
+    margin-bottom:12px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-size:28px;
+    font-weight:700;
+    margin:0 0 8px;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--muted);font-size:14.5px;margin:0;line-height:1.5;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+
+  .field-group{margin-bottom:24px;}
+  .field-group:last-child{margin-bottom:0;}
+  .field-group > label{
+    display:block;
+    font-weight:600;
+    font-size:14.5px;
+    margin-bottom:9px;
+  }
+  input[type="text"], select{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-family:var(--font-body);
+    font-size:15px;
+    color:var(--ink);
+    background:var(--surface);
+  }
+  input[type="text"]:focus-visible, select:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+
+  .pill-toggle{display:flex;gap:8px;}
+  .pill-toggle button{
+    flex:1;
+    padding:11px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    border-radius:var(--radius-sm);
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    color:var(--muted);
+    font-family:var(--font-body);
+  }
+  .pill-toggle button.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+  .pill-toggle button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .conditional{
+    background:#FAFBFC;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:16px;
+    margin-top:-4px;
+  }
+
+  .device-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  @media (min-width:560px){
+    .device-grid{grid-template-columns:1fr 1fr;}
+  }
+  .device-card{
+    text-align:left;
+    padding:16px;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    position:relative;
+    font-family:var(--font-body);
+  }
+  .device-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .device-card.selected{
+    border-color:var(--accent);
+    background:var(--accent-tint);
+  }
+  .device-card.disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+  .device-name{font-family:var(--font-display);font-weight:600;font-size:15.5px;}
+  .device-desc{color:var(--muted);font-size:12.5px;}
+  .device-status{
+    position:absolute;
+    top:10px;
+    right:10px;
+    font-size:10.5px;
+    font-family:var(--font-mono);
+    letter-spacing:.03em;
+    color:var(--danger);
+    background:var(--danger-bg);
+    padding:2px 6px;
+    border-radius:5px;
+  }
+
+  .ineligible-note{
+    background:var(--danger-bg);
+    color:var(--danger);
+    border:1px solid #F1C6C3;
+    padding:12px 14px;
+    border-radius:var(--radius-sm);
+    font-size:13px;
+    line-height:1.6;
+    margin-top:12px;
+  }
+
+  .warning-box{
+    background:var(--warn-bg);
+    border:1px solid var(--warn-line);
+    color:var(--warn);
+    padding:16px;
+    border-radius:var(--radius);
+    margin-top:14px;
+  }
+  .warning-box strong{display:block;font-size:14px;margin-bottom:6px;}
+  .warning-box p{font-size:13.5px;line-height:1.55;margin:0 0 12px;}
+  .ack-check{
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .ack-check input{margin-top:2px;}
+
+  .submit-btn{
+    width:100%;
+    padding:14px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius-sm);
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:6px;
+    font-family:var(--font-body);
+  }
+  .submit-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .submit-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .form-error{color:var(--danger);font-size:13px;margin-top:12px;}
+
+  .success-screen{
+    text-align:center;
+    padding:44px 20px;
+  }
+  .success-screen h2{font-family:var(--font-display);font-size:22px;margin:0 0 8px;color:var(--success);}
+  .success-screen p{color:var(--muted);font-size:14.5px;margin:0;}
+  .link-btn{
+    background:none;border:none;color:var(--accent);
+    font-weight:600;cursor:pointer;text-decoration:underline;
+    margin-top:18px;font-size:14px;font-family:var(--font-body);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <span class="eyebrow">IT HARDWARE REQUEST · CARDO SYSTEMS</span>
+    <h1>Computer Upgrade Request</h1>
+    <p class="sub">Tell us about your role and daily tools. Based on your answers, we'll show you which laptops you're eligible to request.</p>
+  </div>
+
+  <div class="card">
+    <form id="upgradeForm" novalidate>
+
+      <div class="field-group">
+        <label for="empName">Full name</label>
+        <input type="text" id="empName" autocomplete="name" placeholder="Your full name" required />
+      </div>
+
+      <div class="field-group">
+        <label for="empTeam">Team / Department</label>
+        <select id="empTeam" required>
+          <option value="" disabled selected>Select your team</option>
+          <option>IT</option>
+          <option>R&amp;D - Software</option>
+          <option>R&amp;D - Hardware</option>
+          <option>Operations</option>
+          <option>Sales &amp; Marketing</option>
+          <option>Finance</option>
+          <option>Support</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Is Priority ERP your main, daily work application?</label>
+        <div class="pill-toggle" data-field="priorityERP">
+          <button type="button" data-value="yes">Yes</button>
+          <button type="button" data-value="no">No</button>
+        </div>
+      </div>
+
+      <div class="field-group conditional" id="usbGroup" hidden>
+        <label>Do you regularly connect USB devices as part of your daily work (e.g. debuggers, dongles, external hardware)?</label>
+        <div class="pill-toggle" data-field="usbDevices">
+          <button type="button" data-value="yes">Yes</button>
+          <button type="button" data-value="no">No</button>
+        </div>
+      </div>
+
+      <div class="field-group conditional" id="solidworksGroup" hidden>
+        <label>Do you use SolidWorks?</label>
+        <div class="pill-toggle" data-field="solidworks">
+          <button type="button" data-value="yes">Yes</button>
+          <button type="button" data-value="no">No</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Which device would you like?</label>
+        <div class="device-grid" id="deviceGrid">
+          <button type="button" class="device-card" data-device="MacBook Pro" data-platform="mac" aria-pressed="false">
+            <span class="device-name">MacBook Pro</span>
+            <span class="device-desc">macOS · heavy creative / dev workloads</span>
+            <span class="device-status"></span>
+          </button>
+          <button type="button" class="device-card" data-device="MacBook Air" data-platform="mac" aria-pressed="false">
+            <span class="device-name">MacBook Air</span>
+            <span class="device-desc">macOS · lightweight, everyday use</span>
+            <span class="device-status"></span>
+          </button>
+          <button type="button" class="device-card" data-device="MacBook Neo" data-platform="mac" aria-pressed="false">
+            <span class="device-name">MacBook Neo</span>
+            <span class="device-desc">macOS · standard everyday laptop</span>
+            <span class="device-status"></span>
+          </button>
+          <button type="button" class="device-card" data-device="Lenovo ThinkPad T14" data-platform="win" aria-pressed="false">
+            <span class="device-name">Lenovo ThinkPad T14</span>
+            <span class="device-desc">Windows · durable business laptop</span>
+            <span class="device-status"></span>
+          </button>
+        </div>
+        <p class="ineligible-note" id="ineligibleNote" hidden></p>
+      </div>
+
+      <div class="field-group conditional" id="macWarnGroup" hidden>
+        <label>Have you used an iPhone, iPad, or Mac before?</label>
+        <div class="pill-toggle" data-field="macExperience">
+          <button type="button" data-value="yes">Yes</button>
+          <button type="button" data-value="no">No, never</button>
+        </div>
+        <div class="warning-box" id="macWarningBox" hidden>
+          <strong>⚠ Before you continue</strong>
+          <p>If you've never used iOS or macOS, switching to a Mac isn't a simple transition — the file system, shortcuts, and everyday workflows are different from Windows, and it takes real time to adjust. We'd recommend a Windows laptop unless you're prepared for that learning curve.</p>
+          <label class="ack-check">
+            <input type="checkbox" id="ackWarningCheck" />
+            I understand this, and I'd still like to request a Mac.
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="submit-btn" disabled>Submit request</button>
+      <p class="form-error" id="formError" hidden></p>
+    </form>
+
+    <div class="success-screen" id="successScreen" hidden>
+      <h2>Request received</h2>
+      <p>Thanks, <span id="successName"></span> — your device request has been logged with IT.</p>
+      <button type="button" id="newRequestBtn" class="link-btn">Submit another response</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const state = {
+    name: '', team: '', priorityERP: null, usbDevices: null,
+    solidworks: null, device: null, macExperience: null, ackWarning: false
+  };
+
+  const empName = document.getElementById('empName');
+  const empTeam = document.getElementById('empTeam');
+  const usbGroup = document.getElementById('usbGroup');
+  const solidworksGroup = document.getElementById('solidworksGroup');
+  const deviceCards = Array.from(document.querySelectorAll('.device-card'));
+  const ineligibleNote = document.getElementById('ineligibleNote');
+  const macWarnGroup = document.getElementById('macWarnGroup');
+  const macWarningBox = document.getElementById('macWarningBox');
+  const ackWarningCheck = document.getElementById('ackWarningCheck');
+  const submitBtn = document.getElementById('submitBtn');
+  const form = document.getElementById('upgradeForm');
+  const formError = document.getElementById('formError');
+  const successScreen = document.getElementById('successScreen');
+  const successName = document.getElementById('successName');
+  const newRequestBtn = document.getElementById('newRequestBtn');
+
+  function isMacDevice(device){
+    return device === 'MacBook Pro' || device === 'MacBook Air' || device === 'MacBook Neo';
+  }
+
+  function resetToggle(field){
+    document.querySelector(`.pill-toggle[data-field="${field}"]`)
+      ?.querySelectorAll('button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
+  }
+
+  document.querySelectorAll('.pill-toggle').forEach(group=>{
+    const field = group.dataset.field;
+    group.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        group.querySelectorAll('button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed','true');
+        state[field] = btn.dataset.value;
+
+        if (field === 'macExperience'){
+          const isNo = btn.dataset.value === 'no';
+          macWarningBox.hidden = !isNo;
+          if (!isNo){ ackWarningCheck.checked = false; state.ackWarning = false; }
+        }
+        onStateChange();
+      });
+    });
+  });
+
+  empName.addEventListener('input', ()=>{ state.name = empName.value; updateSubmitEnabled(); });
+
+  empTeam.addEventListener('change', ()=>{
+    state.team = empTeam.value;
+    state.usbDevices = null;
+    state.solidworks = null;
+    resetToggle('usbDevices');
+    resetToggle('solidworks');
+    onStateChange();
+  });
+
+  deviceCards.forEach(card=>{
+    card.addEventListener('click', ()=>{
+      if (card.classList.contains('disabled')) return;
+      deviceCards.forEach(c=>{c.classList.remove('selected');c.setAttribute('aria-pressed','false');});
+      card.classList.add('selected');
+      card.setAttribute('aria-pressed','true');
+      state.device = card.dataset.device;
+      onStateChange();
+    });
+  });
+
+  ackWarningCheck.addEventListener('change', ()=>{
+    state.ackWarning = ackWarningCheck.checked;
+    updateSubmitEnabled();
+  });
+
+  function onStateChange(){
+    usbGroup.hidden = state.team !== 'R&D - Software';
+    solidworksGroup.hidden = state.team !== 'R&D - Hardware';
+    updateDeviceEligibility();
+    updateMacWarnVisibility();
+    updateSubmitEnabled();
+  }
+
+  function updateDeviceEligibility(){
+    const reasons = [];
+    if (state.priorityERP === 'yes') reasons.push('Priority ERP is your main work application.');
+    if (state.team === 'R&D - Software' && state.usbDevices === 'yes') reasons.push('R&D - Software staff who connect USB devices daily are not eligible for Mac.');
+    if (state.team === 'R&D - Hardware' && state.solidworks === 'yes') reasons.push('R&D - Hardware staff who use SolidWorks are not eligible for Mac.');
+    const blocked = reasons.length > 0;
+
+    deviceCards.filter(c=>c.dataset.platform==='mac').forEach(card=>{
+      card.classList.toggle('disabled', blocked);
+      card.querySelector('.device-status').textContent = blocked ? 'Not eligible' : '';
+      if (blocked && state.device === card.dataset.device){
+        state.device = null;
+        card.classList.remove('selected');
+        card.setAttribute('aria-pressed','false');
+      }
+    });
+
+    if (blocked){
+      ineligibleNote.hidden = false;
+      ineligibleNote.innerHTML = '<strong>Mac not available for you right now:</strong><br>' + reasons.map(r=>'• '+r).join('<br>');
+    } else {
+      ineligibleNote.hidden = true;
+    }
+  }
+
+  function updateMacWarnVisibility(){
+    const isMac = isMacDevice(state.device);
+    macWarnGroup.hidden = !isMac;
+    if (!isMac){
+      state.macExperience = null;
+      state.ackWarning = false;
+      resetToggle('macExperience');
+      macWarningBox.hidden = true;
+      ackWarningCheck.checked = false;
+    }
+  }
+
+  function updateSubmitEnabled(){
+    let valid = state.name.trim() !== '' && state.team !== '' && state.priorityERP !== null && state.device !== null;
+    if (state.team === 'R&D - Software') valid = valid && state.usbDevices !== null;
+    if (state.team === 'R&D - Hardware') valid = valid && state.solidworks !== null;
+    if (isMacDevice(state.device)){
+      valid = valid && state.macExperience !== null;
+      if (state.macExperience === 'no') valid = valid && state.ackWarning === true;
+    }
+    submitBtn.disabled = !valid;
+  }
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+    formError.hidden = true;
+
+    const payload = {
+      name: state.name.trim(),
+      team: state.team,
+      priorityERP: state.priorityERP,
+      usbDevices: state.team === 'R&D - Software' ? state.usbDevices : null,
+      solidworks: state.team === 'R&D - Hardware' ? state.solidworks : null,
+      device: state.device,
+      macExperience: isMacDevice(state.device) ? state.macExperience : null,
+      ackWarning: state.ackWarning
+    };
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('bad-status');
+      successName.textContent = payload.name;
+      form.hidden = true;
+      successScreen.hidden = false;
+    } catch (err){
+      formError.hidden = false;
+      formError.textContent = 'Something went wrong saving your request. Please try again, or contact IT directly.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit request';
+    }
+  });
+
+  newRequestBtn.addEventListener('click', ()=> location.reload());
+</script>
+</body>
+</html>

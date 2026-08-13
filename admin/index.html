@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin · Computer Upgrade Requests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F6F8; --surface:#FFFFFF; --ink:#14171F; --muted:#5B6270; --line:#E4E7EC;
+    --accent:#3452FF; --danger:#B3261E;
+    --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+  .app{max-width:900px;margin:0 auto;padding:32px 20px 56px;}
+  h1{font-family:var(--font-display);font-size:22px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 24px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .toolbar div{display:flex;gap:8px;}
+  button{
+    padding:9px 14px;border:1px solid var(--line);background:var(--surface);
+    border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);
+  }
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;}
+  th{font-family:var(--font-mono);text-transform:uppercase;font-size:10.5px;color:var(--muted);letter-spacing:.03em;}
+  .del-btn{border-color:var(--danger);color:var(--danger);padding:4px 8px;font-size:11px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Computer upgrade requests</h1>
+  <p class="sub">Internal view — access should be restricted at the edge via Cloudflare Access (see README).</p>
+  <div class="toolbar">
+    <div>Responses: <strong id="responseCount">0</strong></div>
+    <div>
+      <button id="refreshBtn">Refresh</button>
+      <button id="exportBtn" class="primary">Export CSV</button>
+    </div>
+  </div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Name</th><th>Team</th><th>Priority ERP</th>
+          <th>USB devices</th><th>SolidWorks</th><th>Device</th>
+          <th>Mac experience</th><th>Ack. warning</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="responseTbody"><tr><td colspan="10">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script>
+  let cachedResponses = [];
+  const responseTbody = document.getElementById('responseTbody');
+  const responseCount = document.getElementById('responseCount');
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str ?? '';
+    return d.innerHTML;
+  }
+
+  async function loadResponses(){
+    responseTbody.innerHTML = '<tr><td colspan="10">Loading…</td></tr>';
+    try {
+      const res = await fetch('/api/admin/responses');
+      if (!res.ok) throw new Error('bad-status');
+      const items = await res.json();
+      cachedResponses = items;
+      responseCount.textContent = items.length;
+      responseTbody.innerHTML = '';
+      if (items.length === 0){
+        responseTbody.innerHTML = '<tr><td colspan="10">No responses yet.</td></tr>';
+        return;
+      }
+      items.forEach(({key, data}) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(data.timestamp).toLocaleString()}</td>
+          <td>${escapeHtml(data.name)}</td>
+          <td>${escapeHtml(data.team)}</td>
+          <td>${data.priorityERP ?? '-'}</td>
+          <td>${data.usbDevices ?? '-'}</td>
+          <td>${data.solidworks ?? '-'}</td>
+          <td>${escapeHtml(data.device)}</td>
+          <td>${data.macExperience ?? '-'}</td>
+          <td>${data.ackWarning ? 'yes' : '-'}</td>
+          <td><button class="del-btn" data-key="${key}">Delete</button></td>
+        `;
+        responseTbody.appendChild(tr);
+      });
+      responseTbody.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('Delete this response?')) return;
+          try {
+            await fetch('/api/admin/responses', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: btn.dataset.key })
+            });
+            loadResponses();
+          } catch (e) { alert('Could not delete this response.'); }
+        });
+      });
+    } catch (err) {
+      responseTbody.innerHTML = '<tr><td colspan="10">Failed to load responses.</td></tr>';
+    }
+  }
+
+  function exportCSV(){
+    if (!cachedResponses.length){ alert('No responses to export.'); return; }
+    const headers = ['Date','Name','Team','Priority ERP','USB devices','SolidWorks','Device','Mac experience','Acknowledged warning'];
+    const rows = cachedResponses.map(({data}) => [
+      new Date(data.timestamp).toLocaleString(),
+      data.name, data.team, data.priorityERP ?? '', data.usbDevices ?? '',
+      data.solidworks ?? '', data.device, data.macExperience ?? '',
+      data.ackWarning ? 'yes' : 'no'
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `computer-upgrade-requests-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', loadResponses);
+  document.getElementById('exportBtn').addEventListener('click', exportCSV);
+  loadResponses();
+</script>
+</body>
+</html>

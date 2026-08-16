@@ -99,7 +99,9 @@ edit there too, not just in `DEPARTMENTS`.
 3. **R&D → Hardware** + uses SolidWorks → not eligible for any MacBook.
 4. **R&D → Mechanical Engineering** → restricted to the Lenovo ThinkPad
    P16 only, regardless of any other answer. This one is exclusive
-   (every other device is disabled) rather than just blocking Mac.
+   (every other device is disabled) rather than just blocking Mac. The
+   P16 itself is also locked to Mechanical Engineering only — no other
+   team can select it either.
 
 ## Editing later
 
@@ -128,6 +130,34 @@ minute. You can watch it happen under your Pages project →
 If you'd rather skip the terminal, editing files directly on github.com
 (open the file → pencil/edit icon → commit) triggers the same automatic
 redeploy.
+
+### Employee directory (name → email autofill)
+
+`employees.json` at the repo root is a flat array:
+
+```json
+[
+  { "name": "Adam Lauer", "email": "adaml@cardosystems.com", "title": "Global Shipping Specialist" }
+]
+```
+
+The form fetches this on load, suggests names as the employee types, and
+on an exact (case-insensitive) name match: fills in their email and shows
+their job title as a confirmation label (e.g. "Matched · Global Shipping
+Specialist"). The email field stays editable regardless, so a typo or a
+name not in the list just means they type their own email manually.
+
+**Job title is not used to auto-select Department/Team.** The roster's
+180 job titles across 212 people don't map cleanly onto the 11 fixed
+departments (e.g. "Country Manager Italy & Balkans" or "HW Mgr." give no
+reliable signal), and getting that wrong would misapply the Mac/P16
+eligibility rules. Department stays a manual selection.
+
+To update the roster later: export name/email/title from HiBob (or
+wherever it lives) in this same shape, replace `employees.json`, commit,
+and push — no other file needs to change. `Personal mobile` from the
+HiBob export is intentionally left out of this file, since there's no
+reason to publish phone numbers into a file the browser can read.
 
 ### Editing the department/team list
 

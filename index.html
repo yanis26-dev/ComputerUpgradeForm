@@ -260,6 +260,12 @@
   .submit-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
   .form-error{color:var(--danger);font-size:12.5px;margin-top:12px;}
+  .match-hint{
+    color:var(--accent-strong);
+    font-size:12px;
+    margin:7px 0 0;
+    font-family:var(--font-mono);
+  }
 
   .success-screen{padding:8px 4px 4px;}
   .success-status{
@@ -298,7 +304,9 @@
 
         <div class="field-group">
           <label for="empName">Full name</label>
-          <input type="text" id="empName" autocomplete="name" placeholder="Your full name" required />
+          <input type="text" id="empName" autocomplete="name" placeholder="Your full name" list="employeeList" required />
+          <datalist id="employeeList"></datalist>
+          <p class="match-hint" id="matchHint" hidden></p>
         </div>
 
         <div class="field-group">
@@ -534,8 +542,54 @@
     });
   });
 
-  empName.addEventListener('input', ()=>{ state.name = empName.value; updateSubmitEnabled(); });
+  empName.addEventListener('input', ()=>{
+    state.name = empName.value;
+    updateSubmitEnabled();
+    maybeAutofillEmail();
+  });
   empEmail.addEventListener('input', ()=>{ state.email = empEmail.value; updateSubmitEnabled(); });
+
+  // ---------------------------------------------------------------------
+  // Employee directory autofill. Loads /employees.json — a flat array of
+  // { "name": "...", "email": "...", "title": "..." } — and, once the name
+  // field exactly matches an entry (case-insensitive), fills in that
+  // person's email and shows their job title as a confirmation. The email
+  // field stays editable either way. To update the directory, replace
+  // employees.json in the repo and push — no code changes needed.
+  // ---------------------------------------------------------------------
+  let employeeDirectory = [];
+  let employeeByName = new Map();
+  const matchHint = document.getElementById('matchHint');
+
+  fetch('/employees.json')
+    .then(res => res.ok ? res.json() : [])
+    .then(list => {
+      employeeDirectory = Array.isArray(list) ? list : [];
+      employeeByName = new Map(
+        employeeDirectory
+          .filter(e => e && e.name && e.email)
+          .map(e => [e.name.trim().toLowerCase(), e])
+      );
+      const datalist = document.getElementById('employeeList');
+      datalist.innerHTML = employeeDirectory
+        .filter(e => e && e.name)
+        .map(e => `<option value="${escapeHtml(e.name)}"></option>`)
+        .join('');
+    })
+    .catch(()=>{ /* directory unavailable — form still works without autofill */ });
+
+  function maybeAutofillEmail(){
+    const match = employeeByName.get(empName.value.trim().toLowerCase());
+    if (match){
+      empEmail.value = match.email;
+      state.email = match.email;
+      matchHint.hidden = false;
+      matchHint.textContent = match.title ? `Matched · ${match.title}` : 'Matched';
+      updateSubmitEnabled();
+    } else {
+      matchHint.hidden = true;
+    }
+  }
 
   empDepartment.addEventListener('change', ()=>{
     state.department = empDepartment.value;
@@ -615,6 +669,19 @@
       ineligibleNote.hidden = false;
       ineligibleNote.innerHTML = '<strong>Device limited for your team:</strong><br>• Mechanical Engineering roles are provisioned with the Lenovo ThinkPad P16 (CAD-ready workstation) instead of other devices.';
       return;
+    }
+
+    // P16 is exclusive to Mechanical Engineering — everyone else is locked out of it,
+    // regardless of any other answer.
+    const p16Card = deviceCards.find(c => c.dataset.device === 'Lenovo ThinkPad P16');
+    if (p16Card){
+      p16Card.classList.add('disabled');
+      p16Card.querySelector('.device-status').textContent = 'Mech. Eng. only';
+      if (state.device === 'Lenovo ThinkPad P16'){
+        state.device = null;
+        p16Card.classList.remove('selected');
+        p16Card.setAttribute('aria-pressed','false');
+      }
     }
 
     const reasons = [];

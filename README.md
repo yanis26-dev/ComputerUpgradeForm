@@ -156,16 +156,18 @@ Team too. Every field stays fully editable regardless, so a stale record
 or a name not in the list just means filling it in manually.
 
 **`department` and `subDepartment` are `null` whenever the HR export's
-raw value doesn't exactly match an option in `DEPARTMENTS`.** This is
-deliberate — a wrong guess here could misapply the Mac/P16 rules with no
-obvious sign anything's wrong, so a gap is left blank rather than
-resolved automatically. As of the last import (212 people):
+raw value doesn't exactly match — or isn't explicitly aliased to — an
+option in `DEPARTMENTS`.** This is deliberate — a wrong guess here could
+misapply the Mac/P16 rules with no obvious sign anything's wrong, so a
+gap is left blank rather than resolved automatically. As of the last
+import (212 people):
 
-- **5 people in "HR" are entirely unmapped** (department and team both
-  blank) — the HR export's Department field says `HR`, which doesn't
-  match any current `DEPARTMENTS` key. Add an `HR` entry to
-  `DEPARTMENTS` (with or without teams) if you want these to start
-  auto-filling.
+- The HR export's Department field says `HR` for 5 people; this is
+  aliased to `HR & Admin` (see `DEPARTMENT_ALIASES` in the conversion
+  step) so all 5 now auto-fill correctly. Their Team stays blank either
+  way, since `HR & Admin` currently has no teams defined in
+  `DEPARTMENTS` — add some there if you want Team to auto-fill for them
+  too.
 - **4 people have department filled but team blank**: two people tagged
   `Marcom` and one tagged `ORV` in Marketing, and one tagged `ORV` in
   Sales — none of those team names exist in `DEPARTMENTS` yet.

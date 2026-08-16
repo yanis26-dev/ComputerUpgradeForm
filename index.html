@@ -320,7 +320,7 @@
             <option value="" disabled selected>Select your department</option>
             <option>Cardo Ride</option>
             <option>Crew</option>
-            <option>Finance-IT-Legal</option>
+            <option>Finance, IT &amp; Legal</option>
             <option>HR &amp; Admin</option>
             <option>Management</option>
             <option>Marketing</option>
@@ -460,15 +460,15 @@
   const DEPARTMENTS = {
     'Cardo Ride': [],
     'Crew': [],
-    'Finance-IT-Legal': ['F&A', 'Finance', 'IT', 'Legal'],
+    'Finance, IT & Legal': ['F&A', 'Finance', 'IT', 'Legal'],
     'HR & Admin': [],
     'Management': [],
     'Marketing': ['Cardo Ride', 'Digital & Social Media', 'Studio'],
-    'Operations': ['ATE', 'China OPS', 'Customer Support', 'EDM', 'NPI', 'Quality', 'Sourcing & Procurement', 'Supply Chain'],
+    'Operations': ['ATE', 'China OPS', 'Customer Support', 'EDM', 'Engineering', 'NPI', 'Quality', 'Sourcing & Procurement', 'Supply Chain'],
     'Outdoor': [],
-    'Product Management': [],
-    'R&D': ['Cardo Sound Labs', 'Hardware', 'Mechanical Engineering', 'N-iX', 'QA', 'Software'],
-    'Sales': ['APAC', 'EMEA', 'OPS', 'US'],
+    'Product Management': ['Product', 'Project'],
+    'R&D': ['CSL', 'Hardware', 'Mechanics', 'N-iX', 'QA', 'R&D Projects', 'Software'],
+    'Sales': ['APAC', 'EMEA', 'OPS', 'USA'],
     'Other': []
   };
 
@@ -578,21 +578,9 @@
     })
     .catch(()=>{ /* directory unavailable — form still works without autofill */ });
 
-  function maybeAutofillEmail(){
-    const match = employeeByName.get(empName.value.trim().toLowerCase());
-    if (match){
-      empEmail.value = match.email;
-      state.email = match.email;
-      matchHint.hidden = false;
-      matchHint.textContent = match.title ? `Matched · ${match.title}` : 'Matched';
-      updateSubmitEnabled();
-    } else {
-      matchHint.hidden = true;
-    }
-  }
-
-  empDepartment.addEventListener('change', ()=>{
-    state.department = empDepartment.value;
+  function applyDepartmentSelection(deptValue){
+    empDepartment.value = deptValue;
+    state.department = deptValue;
     state.subDepartment = '';
     state.usbDevices = null;
     state.solidworks = null;
@@ -608,6 +596,32 @@
       subDepartmentGroup.hidden = true;
       empSubDepartment.innerHTML = '';
     }
+  }
+
+  function maybeAutofillEmail(){
+    const match = employeeByName.get(empName.value.trim().toLowerCase());
+    if (match){
+      empEmail.value = match.email;
+      state.email = match.email;
+      matchHint.hidden = false;
+      matchHint.textContent = match.title ? `Matched · ${match.title}` : 'Matched';
+
+      if (match.department && DEPARTMENTS.hasOwnProperty(match.department)){
+        applyDepartmentSelection(match.department);
+        if (match.subDepartment){
+          empSubDepartment.value = match.subDepartment;
+          state.subDepartment = match.subDepartment;
+        }
+        onStateChange();
+      }
+      updateSubmitEnabled();
+    } else {
+      matchHint.hidden = true;
+    }
+  }
+
+  empDepartment.addEventListener('change', ()=>{
+    applyDepartmentSelection(empDepartment.value);
     onStateChange();
   });
 
@@ -647,7 +661,7 @@
 
   function updateDeviceEligibility(){
     const isRnD = state.department === 'R&D';
-    const isMechEng = isRnD && state.subDepartment === 'Mechanical Engineering';
+    const isMechEng = isRnD && state.subDepartment === 'Mechanics';
 
     deviceCards.forEach(card=>{
       card.classList.remove('disabled');
@@ -667,7 +681,7 @@
         }
       });
       ineligibleNote.hidden = false;
-      ineligibleNote.innerHTML = '<strong>Device limited for your team:</strong><br>• Mechanical Engineering roles are provisioned with the Lenovo ThinkPad P16 (CAD-ready workstation) instead of other devices.';
+      ineligibleNote.innerHTML = '<strong>Device limited for your team:</strong><br>• Mechanics roles are provisioned with the Lenovo ThinkPad P16 (CAD-ready workstation) instead of other devices.';
       return;
     }
 

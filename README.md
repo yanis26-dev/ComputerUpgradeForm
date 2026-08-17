@@ -102,6 +102,16 @@ edit there too, not just in `DEPARTMENTS`.
    (every other device is disabled) rather than just blocking Mac. The
    P16 itself is also locked to Mechanics only — no other
    team can select it either.
+5. **R&D → Software** + connects USB devices daily → in addition to
+   losing Mac eligibility (rule 2), T14 is the only device left standing
+   for this group — Mac is blocked by rule 2, and P16 is separately
+   locked to Mechanics only (rule 4), so no explicit "only T14" check was
+   needed; it falls out of the other two rules automatically. What *is*
+   new here: the T14 card's description gets a **"— 32GB model"** note
+   appended (see `T14_SPEC_NOTE` near the top of the script), and the
+   submitted `device` value itself becomes `"Lenovo ThinkPad T14 (32GB)"`
+   instead of the plain name — so it shows up distinctly in the admin
+   table and CSV export, not just on the form.
 
 ## Editing later
 

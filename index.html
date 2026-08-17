@@ -410,7 +410,7 @@
                 <svg class="device-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="11.5" rx="1.4"/><path d="M1 19.2h22l-1.8-3H2.8z"/></svg>
                 <span class="device-name">Lenovo ThinkPad T14</span>
               </div>
-              <span class="device-desc">Windows · durable business laptop</span>
+              <span class="device-desc" id="t14Desc">Windows · durable business laptop</span>
               <span class="device-status"></span>
             </button>
             <button type="button" class="device-card" data-device="Lenovo ThinkPad P16" data-platform="win" aria-pressed="false">
@@ -496,6 +496,9 @@
   const usbGroup = document.getElementById('usbGroup');
   const solidworksGroup = document.getElementById('solidworksGroup');
   const deviceCards = Array.from(document.querySelectorAll('.device-card'));
+  const t14Desc = document.getElementById('t14Desc');
+  const T14_BASE_DESC = 'Windows · durable business laptop';
+  const T14_SPEC_NOTE = ' — 32GB model';
   const ineligibleNote = document.getElementById('ineligibleNote');
   const macWarnGroup = document.getElementById('macWarnGroup');
   const macWarningBox = document.getElementById('macWarningBox');
@@ -661,6 +664,9 @@
   function updateDeviceEligibility(){
     const isRnD = state.department === 'R&D';
     const isMechEng = isRnD && state.subDepartment === 'Mechanics';
+    const isSoftwareUsb = isRnD && state.subDepartment === 'Software' && state.usbDevices === 'yes';
+
+    t14Desc.textContent = isSoftwareUsb ? (T14_BASE_DESC + T14_SPEC_NOTE) : T14_BASE_DESC;
 
     deviceCards.forEach(card=>{
       card.classList.remove('disabled');
@@ -757,6 +763,10 @@
     submitBtn.textContent = 'Submitting…';
     formError.hidden = true;
     const isRnD = state.department === 'R&D';
+    const isSoftwareUsb = isRnD && state.subDepartment === 'Software' && state.usbDevices === 'yes';
+    const submittedDevice = (isSoftwareUsb && state.device === 'Lenovo ThinkPad T14')
+      ? 'Lenovo ThinkPad T14 (32GB)'
+      : state.device;
 
     const payload = {
       requestId: ticketId,
@@ -767,7 +777,7 @@
       priorityERP: state.priorityERP,
       usbDevices: (isRnD && state.subDepartment === 'Software') ? state.usbDevices : null,
       solidworks: (isRnD && state.subDepartment === 'Hardware') ? state.solidworks : null,
-      device: state.device,
+      device: submittedDevice,
       macExperience: isMacDevice(state.device) ? state.macExperience : null,
       ackWarning: state.ackWarning
     };

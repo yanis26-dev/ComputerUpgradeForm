@@ -189,14 +189,6 @@
       if (data.unmappedDept) parts.push(`${data.unmappedDept} with unmapped department`);
       if (data.unmappedTeam) parts.push(`${data.unmappedTeam} with unmapped team`);
       syncStatus.textContent = `✓ ${parts.join(', ')} · ${new Date(data.syncedAt).toLocaleString()}`;
-      const parts = [`${data.rawFromHibob} received from HiBob`, `${data.total} employees synced`];
-      if (data.missingNameOrEmail) {
-        parts.push(`${data.missingNameOrEmail} skipped (missing name/email)`);
-        parts.push(`of those, ${data.missingNameOrEmailButHasWorkData} had title/department data`);
-      }
-      if (data.unmappedDept) parts.push(`${data.unmappedDept} with unmapped department`);
-      if (data.unmappedTeam) parts.push(`${data.unmappedTeam} with unmapped team`);
-      syncStatus.textContent = `✓ ${parts.join(', ')} · ${new Date(data.syncedAt).toLocaleString()}`;
     } catch (err) {
       syncStatus.textContent = `✗ ${err.message}`;
     } finally {

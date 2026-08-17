@@ -133,60 +133,52 @@ redeploy.
 
 ### Employee directory (name → email, department, and team autofill)
 
-`employees.json` at the repo root is a flat array:
+**This is now live-synced from HiBob, not a static file.** The form
+fetches `/api/employees` (a Function reading from KV), and the admin
+page has a **"Sync employees from HiBob"** button that calls
+`/api/admin/sync-employees` to refresh that KV entry on demand — no more
+sending Claude an Excel export every time headcount changes.
 
-```json
-[
-  {
-    "name": "Adam Lauer",
-    "email": "adaml@cardosystems.com",
-    "title": "Global Shipping Specialist",
-    "department": "Operations",
-    "subDepartment": "Supply Chain"
-  }
-]
-```
+**One-time setup** (see the top of this README's version history / ask
+Claude if you're doing this fresh):
+1. Create a HiBob Service User (System Settings → Integrations → Service
+   users) with **View** permission on the Root and Work categories
+   (Work covers the custom Team column too), and an audience covering all
+   current employees.
+2. Add two Cloudflare Pages secrets (Settings → Environment variables →
+   Secret, on both Production and Preview):
+   `HIBOB_SERVICE_USER_ID`, `HIBOB_SERVICE_USER_TOKEN`.
+3. Deploy, then click **Sync employees from HiBob** once on the admin
+   page — until that first sync runs, `/api/employees` returns an empty
+   list and autofill just won't have anything to suggest yet.
 
-The form fetches this on load, suggests names as the employee types, and
-on an exact (case-insensitive) name match: fills in their email, shows
-their job title as a confirmation label (e.g. "Matched · Global Shipping
-Specialist"), and — where the HR export's Department/Team values line up
-exactly with the options in `DEPARTMENTS` — pre-selects Department and
-Team too. Every field stays fully editable regardless, so a stale record
-or a name not in the list just means filling it in manually.
+**How the mapping works** (in `functions/api/admin/sync-employees.js`):
+for each active employee, HiBob's `Department` and custom `Team` fields
+are looked up against the same `DEPARTMENTS` structure the form uses.
+`department`/`subDepartment` are left `null` whenever a raw value doesn't
+exactly match — or isn't explicitly aliased to — a known option, same
+"leave it blank rather than guess" principle as before. Two small maps
+handle the known exceptions, confirmed during the original rollout:
 
-**`department` and `subDepartment` are `null` whenever the HR export's
-raw value doesn't exactly match — or isn't explicitly aliased to — an
-option in `DEPARTMENTS`.** This is deliberate — a wrong guess here could
-misapply the Mac/P16 rules with no obvious sign anything's wrong, so a
-gap is left blank rather than resolved automatically. As of the last
-import (212 people):
+- `DEPARTMENT_ALIASES`: `HR` → `HR & Admin`
+- `MANUAL_TEAM_OVERRIDES` (by name, not a general rule): Guy Heimann →
+  Software, Ivan Ygerev/Michael Sobolev/Timur Rajabov → QA, Yuval Zinger
+  → R&D Projects
 
-- The HR export's Department field says `HR` for 5 people; this is
-  aliased to `HR & Admin` (see `DEPARTMENT_ALIASES` in the conversion
-  step) so all 5 now auto-fill correctly. Their Team stays blank either
-  way, since `HR & Admin` currently has no teams defined in
-  `DEPARTMENTS` — add some there if you want Team to auto-fill for them
-  too.
-- **4 people have department filled but team blank**: two people tagged
-  `Marcom` and one tagged `ORV` in Marketing, and one tagged `ORV` in
-  Sales — none of those team names exist in `DEPARTMENTS` yet.
-- Five R&D people whose raw Team value didn't cleanly match anything
-  (`Backend`, `QAR` ×3, `R&D Projects`) were resolved with one-off manual
-  overrides confirmed directly rather than a general rule — see
-  `MANUAL_TEAM_OVERRIDES` in the conversion step if you regenerate this
-  file yourself; Claude used this mapping the last time:
-  Guy Heimann → Software, Ivan Ygerev/Michael Sobolev/Timur Rajabov → QA,
-  Yuval Zinger → R&D Projects.
+**⚠️ `DEPARTMENTS` is duplicated** between `index.html` (drives the
+dropdowns and eligibility rules) and `functions/api/admin/sync-employees.js`
+(drives the sync mapping) — there's no shared config file between a
+static page and a Function in this setup, so if you add or rename a
+department/team in one, update the other too, or new/renamed
+teams will silently fail to auto-map (not break anything — they just
+won't pre-fill, same as any other unmapped value).
 
-To update the roster later: export name/email/title/department/team from
-HiBob (or wherever it lives) in this same shape, and either ask Claude to
-regenerate `employees.json` (it'll re-run this same reconciliation and
-flag anything new that doesn't match), or do it yourself with a script —
-the matching logic is a straight lookup against `DEPARTMENTS`, no magic
-involved. `Personal mobile` from the HiBob export is intentionally left
-out of this file, since there's no reason to publish phone numbers into a
-file the browser can read.
+The sync response also tells you how many people came back unmapped each
+time (shown right on the admin page after clicking Sync), so you'll
+notice if HiBob data drifts from what the form expects.
+
+`Personal mobile` and other HR data not needed for this form are never
+requested from HiBob's API in the first place.
 
 ### Editing the department/team list
 
@@ -238,3 +230,7 @@ any separate alias/translation table to maintain.
 - The eligibility rules live entirely in `index.html`'s JavaScript
   (`updateDeviceEligibility`). If the rules change, that's the only file
   to touch.
+- The employee directory (`directory:employees`, `directory:lastSynced`)
+  lives in the same KV namespace as form responses (`response:*` keys) —
+  same `RESPONSES` binding, just a different key prefix. No separate KV
+  namespace or binding was needed for this.

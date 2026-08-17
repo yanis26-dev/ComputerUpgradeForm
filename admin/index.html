@@ -56,6 +56,15 @@
   <span class="eyebrow">IT HARDWARE REQUEST · ADMIN</span>
   <h1>Computer upgrade requests</h1>
   <p class="sub">Internal view — access is restricted at the edge via Cloudflare Access.</p>
+
+  <div class="toolbar">
+    <div>Employee directory (name/email/department autofill on the form)</div>
+    <div>
+      <button id="syncBtn" class="primary">Sync employees from HiBob</button>
+    </div>
+  </div>
+  <p class="sub" id="syncStatus" style="margin:-8px 0 20px;"></p>
+
   <div class="toolbar">
     <div>Responses: <strong id="responseCount">0</strong></div>
     <div>
@@ -163,6 +172,29 @@
   document.getElementById('refreshBtn').addEventListener('click', loadResponses);
   document.getElementById('exportBtn').addEventListener('click', exportCSV);
   loadResponses();
+
+  const syncBtn = document.getElementById('syncBtn');
+  const syncStatus = document.getElementById('syncStatus');
+
+  syncBtn.addEventListener('click', async () => {
+    syncBtn.disabled = true;
+    syncBtn.textContent = 'Syncing…';
+    syncStatus.textContent = '';
+    try {
+      const res = await fetch('/api/admin/sync-employees', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || `Sync failed (${res.status})`);
+      const parts = [`${data.total} employees synced`];
+      if (data.unmappedDept) parts.push(`${data.unmappedDept} with unmapped department`);
+      if (data.unmappedTeam) parts.push(`${data.unmappedTeam} with unmapped team`);
+      syncStatus.textContent = `✓ ${parts.join(', ')} · ${new Date(data.syncedAt).toLocaleString()}`;
+    } catch (err) {
+      syncStatus.textContent = `✗ ${err.message}`;
+    } finally {
+      syncBtn.disabled = false;
+      syncBtn.textContent = 'Sync employees from HiBob';
+    }
+  });
 </script>
 </body>
 </html>

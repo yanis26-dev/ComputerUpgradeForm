@@ -550,18 +550,17 @@
   empEmail.addEventListener('input', ()=>{ state.email = empEmail.value; updateSubmitEnabled(); });
 
   // ---------------------------------------------------------------------
-  // Employee directory autofill. Loads /employees.json — a flat array of
-  // { "name": "...", "email": "...", "title": "..." } — and, once the name
-  // field exactly matches an entry (case-insensitive), fills in that
-  // person's email and shows their job title as a confirmation. The email
-  // field stays editable either way. To update the directory, replace
-  // employees.json in the repo and push — no code changes needed.
-  // ---------------------------------------------------------------------
+  // Employee directory autofill. Loads /api/employees — a flat array of
+  // { "name": "...", "email": "...", "title": "...", "department": "...", "subDepartment": "..." }
+  // synced from HiBob via the admin page's "Sync employees from HiBob" button.
+  // On an exact (case-insensitive) name match, fills in email and (where
+  // known) department/team, and shows the job title as a confirmation.
+  // Everything stays editable regardless.
   let employeeDirectory = [];
   let employeeByName = new Map();
   const matchHint = document.getElementById('matchHint');
 
-  fetch('/employees.json')
+  fetch('/api/employees')
     .then(res => res.ok ? res.json() : [])
     .then(list => {
       employeeDirectory = Array.isArray(list) ? list : [];

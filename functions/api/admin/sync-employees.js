@@ -89,6 +89,19 @@ export async function onRequestPost({ env }) {
 
   const employees = Array.isArray(payload.employees) ? payload.employees : [];
 
+  // TEMPORARY DEBUG: return the raw shape of the first record so we can
+  // confirm the actual response format instead of guessing from docs.
+  // Remove this block once the real field keys are confirmed.
+  if (employees.length > 0) {
+    return json({
+      ok: true,
+      debug: true,
+      rawFromHibob: employees.length,
+      firstEmployeeKeys: Object.keys(employees[0]),
+      firstEmployeeSample: employees[0]
+    });
+  }
+
   let mapped = 0;
   let unmappedDept = 0;
   let unmappedTeam = 0;

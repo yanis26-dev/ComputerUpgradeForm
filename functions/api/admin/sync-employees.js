@@ -66,6 +66,11 @@ export async function onRequestPost({ env }) {
           'work.department',
           'work.customColumns.Team'
         ],
+        // Confirmed live: the response nests root-category fields flat at
+        // the top level (displayName, email — no /root/ prefix) and
+        // work-category fields under a real `work` object (work.title,
+        // work.department, work.customColumns.Team) — not slash-keyed
+        // strings as HiBob's own docs suggested. Parsed accordingly below.
         showInactive: false,
         humanReadable: 'REPLACE'
       })
@@ -89,38 +94,20 @@ export async function onRequestPost({ env }) {
 
   const employees = Array.isArray(payload.employees) ? payload.employees : [];
 
-  // TEMPORARY DEBUG: return the raw shape of the first record so we can
-  // confirm the actual response format instead of guessing from docs.
-  // Remove this block once the real field keys are confirmed.
-  if (employees.length > 0) {
-    return json({
-      ok: true,
-      debug: true,
-      rawFromHibob: employees.length,
-      firstEmployeeKeys: Object.keys(employees[0]),
-      firstEmployeeSample: employees[0]
-    });
-  }
-
   let mapped = 0;
   let unmappedDept = 0;
   let unmappedTeam = 0;
   let missingNameOrEmail = 0;
-  let missingNameOrEmailButHasWorkData = 0;
   const records = [];
 
   for (const emp of employees) {
-    const name = String(emp['/root/displayName'] ?? '').trim();
-    const email = String(emp['/root/email'] ?? '').trim();
-    const title = String(emp['/work/title'] ?? '').trim();
-    const rawDept = String(emp['/work/department'] ?? '').trim();
-    const rawTeam = String(emp['/work/customColumns/Team'] ?? '').trim();
+    const name = String(emp.displayName ?? '').trim();
+    const email = String(emp.email ?? '').trim();
+    const title = String(emp.work?.title ?? '').trim();
+    const rawDept = String(emp.work?.department ?? '').trim();
+    const rawTeam = String(emp.work?.customColumns?.Team ?? '').trim();
 
-    if (!name || !email) {
-      missingNameOrEmail++;
-      if (title || rawDept) missingNameOrEmailButHasWorkData++;
-      continue;
-    }
+    if (!name || !email) { missingNameOrEmail++; continue; }
 
     const deptCandidate = DEPARTMENT_ALIASES[rawDept] || rawDept;
     const department = Object.prototype.hasOwnProperty.call(DEPARTMENTS, deptCandidate) ? deptCandidate : null;
@@ -151,7 +138,6 @@ export async function onRequestPost({ env }) {
     ok: true,
     rawFromHibob: employees.length,
     missingNameOrEmail,
-    missingNameOrEmailButHasWorkData,
     total: records.length,
     mapped,
     unmappedDept,

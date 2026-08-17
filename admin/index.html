@@ -183,12 +183,12 @@
     try {
       const res = await fetch('/api/admin/sync-employees', { method: 'POST' });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Sync failed (${res.status})`);
-      if (data.debug) {
-        syncStatus.innerHTML = `<strong>DEBUG — raw first employee from HiBob:</strong><br><pre style="white-space:pre-wrap;font-size:11px;">${JSON.stringify(data.firstEmployeeSample, null, 2).replace(/</g,'&lt;')}</pre>`;
-        return;
-      }
-      if (!data.ok) throw new Error(data.error || 'Sync failed');
+      if (!res.ok || !data.ok) throw new Error(data.error || `Sync failed (${res.status})`);
+      const parts = [`${data.rawFromHibob} received from HiBob`, `${data.total} employees synced`];
+      if (data.missingNameOrEmail) parts.push(`${data.missingNameOrEmail} skipped (missing name/email)`);
+      if (data.unmappedDept) parts.push(`${data.unmappedDept} with unmapped department`);
+      if (data.unmappedTeam) parts.push(`${data.unmappedTeam} with unmapped team`);
+      syncStatus.textContent = `✓ ${parts.join(', ')} · ${new Date(data.syncedAt).toLocaleString()}`;
       const parts = [`${data.rawFromHibob} received from HiBob`, `${data.total} employees synced`];
       if (data.missingNameOrEmail) {
         parts.push(`${data.missingNameOrEmail} skipped (missing name/email)`);

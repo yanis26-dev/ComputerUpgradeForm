@@ -92,6 +92,7 @@ export async function onRequestPost({ env }) {
   let mapped = 0;
   let unmappedDept = 0;
   let unmappedTeam = 0;
+  let missingNameOrEmail = 0;
   const records = [];
 
   for (const emp of employees) {
@@ -101,7 +102,7 @@ export async function onRequestPost({ env }) {
     const rawDept = String(emp['/work/department'] ?? '').trim();
     const rawTeam = String(emp['/work/customColumns/Team'] ?? '').trim();
 
-    if (!name || !email) continue;
+    if (!name || !email) { missingNameOrEmail++; continue; }
 
     const deptCandidate = DEPARTMENT_ALIASES[rawDept] || rawDept;
     const department = Object.prototype.hasOwnProperty.call(DEPARTMENTS, deptCandidate) ? deptCandidate : null;
@@ -130,6 +131,8 @@ export async function onRequestPost({ env }) {
 
   return json({
     ok: true,
+    rawFromHibob: employees.length,
+    missingNameOrEmail,
     total: records.length,
     mapped,
     unmappedDept,

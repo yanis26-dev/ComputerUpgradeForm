@@ -184,7 +184,8 @@
       const res = await fetch('/api/admin/sync-employees', { method: 'POST' });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || `Sync failed (${res.status})`);
-      const parts = [`${data.total} employees synced`];
+      const parts = [`${data.rawFromHibob} received from HiBob`, `${data.total} employees synced`];
+      if (data.missingNameOrEmail) parts.push(`${data.missingNameOrEmail} skipped (missing name/email)`);
       if (data.unmappedDept) parts.push(`${data.unmappedDept} with unmapped department`);
       if (data.unmappedTeam) parts.push(`${data.unmappedTeam} with unmapped team`);
       syncStatus.textContent = `✓ ${parts.join(', ')} · ${new Date(data.syncedAt).toLocaleString()}`;

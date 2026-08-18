@@ -142,22 +142,6 @@
     padding:15px;
     margin-top:-2px;
   }
-  .conditional.nested{
-    position:relative;
-    margin-left:15px;
-    border-color:var(--accent-tint);
-  }
-  .conditional.nested::before{
-    content:'';
-    position:absolute;
-    left:-15px;
-    top:-7px;
-    width:15px;
-    height:22px;
-    border-left:2px solid var(--accent-tint);
-    border-bottom:2px solid var(--accent-tint);
-    border-bottom-left-radius:7px;
-  }
 
   .device-grid{
     display:grid;
@@ -347,7 +331,7 @@
           <span class="section-title">Daily tools</span>
         </div>
 
-        <div class="field-group">
+        <div class="field-group" id="priorityErpGroup">
           <label>Is Priority ERP your main, daily work application?</label>
           <div class="pill-toggle" data-field="priorityERP">
             <button type="button" data-value="yes">Yes</button>
@@ -355,7 +339,7 @@
           </div>
         </div>
 
-        <div class="field-group conditional nested" id="usbGroup" hidden>
+        <div class="field-group conditional" id="usbGroup" hidden>
           <label>Do you regularly connect USB devices as part of your daily work (e.g. debuggers, dongles, external hardware)?</label>
           <div class="pill-toggle" data-field="usbDevices">
             <button type="button" data-value="yes">Yes</button>
@@ -363,7 +347,7 @@
           </div>
         </div>
 
-        <div class="field-group conditional nested" id="solidworksGroup" hidden>
+        <div class="field-group conditional" id="solidworksGroup" hidden>
           <label>Do you use SolidWorks?</label>
           <div class="pill-toggle" data-field="solidworks">
             <button type="button" data-value="yes">Yes</button>
@@ -493,6 +477,7 @@
   const empDepartment = document.getElementById('empDepartment');
   const subDepartmentGroup = document.getElementById('subDepartmentGroup');
   const empSubDepartment = document.getElementById('empSubDepartment');
+  const priorityErpGroup = document.getElementById('priorityErpGroup');
   const usbGroup = document.getElementById('usbGroup');
   const solidworksGroup = document.getElementById('solidworksGroup');
   const deviceCards = Array.from(document.querySelectorAll('.device-card'));
@@ -654,6 +639,13 @@
 
   function onStateChange(){
     const isRnD = state.department === 'R&D';
+
+    priorityErpGroup.hidden = isRnD;
+    if (isRnD && state.priorityERP !== null){
+      state.priorityERP = null;
+      resetToggle('priorityERP');
+    }
+
     usbGroup.hidden = !(isRnD && state.subDepartment === 'Software');
     solidworksGroup.hidden = !(isRnD && state.subDepartment === 'Hardware');
     updateDeviceEligibility();
@@ -743,11 +735,11 @@
     let valid = state.name.trim() !== ''
       && isValidEmail(state.email)
       && state.department !== ''
-      && state.priorityERP !== null
       && state.device !== null;
     const teams = DEPARTMENTS[state.department] || [];
     if (teams.length > 0) valid = valid && !!state.subDepartment;
     const isRnD = state.department === 'R&D';
+    if (!isRnD) valid = valid && state.priorityERP !== null;
     if (isRnD && state.subDepartment === 'Software') valid = valid && state.usbDevices !== null;
     if (isRnD && state.subDepartment === 'Hardware') valid = valid && state.solidworks !== null;
     if (isMacDevice(state.device)){

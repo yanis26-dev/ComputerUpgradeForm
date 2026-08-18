@@ -93,9 +93,15 @@ These live in `updateDeviceEligibility()` in `index.html` — not in the
 edit there too, not just in `DEPARTMENTS`.
 
 1. **Priority ERP as main tool** → not eligible for any MacBook (Pro,
-   Air, or Neo).
+   Air, or Neo). **This question is skipped entirely for R&D** — it
+   never applies to that department, so `priorityERP` stays `null` for
+   anyone in R&D and isn't a required field for them either.
 2. **R&D → Software** + connects USB devices daily → not eligible for
-   any MacBook.
+   any MacBook. This question is independent of the Priority ERP one
+   above (it shows based on Department + Team only) — it used to be
+   styled as visually "nested" under Priority ERP, which was misleading
+   since there's no actual dependency between them; that connector-line
+   styling was removed.
 3. **R&D → Hardware** + uses SolidWorks → not eligible for any MacBook.
 4. **R&D → Mechanics** → restricted to the Lenovo ThinkPad
    P16 only, regardless of any other answer. This one is exclusive
